@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 
@@ -35,13 +36,14 @@ public class RestController {
         return "hello";
     }
 
-    @PostMapping
+    @PostMapping("/join")
     @ResponseBody
-    public User join(User user) {
+    public String join(@RequestBody User user) {
+        System.out.println("join called");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("USER");
         userRepository.save(user);
-        return user;
+        return "join succeeded";
     }
 
 }

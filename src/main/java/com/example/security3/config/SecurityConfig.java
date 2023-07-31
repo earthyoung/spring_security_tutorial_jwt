@@ -1,6 +1,7 @@
 package com.example.security3.config;
 
 import com.example.security3.config.jwt.JwtAuthenticationFilter;
+import com.example.security3.config.jwt.JwtAuthorizationFilter;
 import com.example.security3.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -38,21 +39,26 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
-                .apply(new CustomFilter());
-        http
                 .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers("/hello").authenticated()
                         .anyRequest().permitAll()
-                );
+                )
+                .apply(new CustomFilter());
         return http.build();
+
     }
 
     public class CustomFilter extends AbstractHttpConfigurer<CustomFilter, HttpSecurity> {
+
         @Override
         public void configure(HttpSecurity http) throws Exception {
+            System.out.println("configure 호출");
             AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
             http
                     .addFilter(corsConfig.corsFilter())
-                    .addFilter(new JwtAuthenticationFilter(authenticationManager));
+                    .addFilter(new JwtAuthenticationFilter(authenticationManager))
+                    .addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository));
+            System.out.println("configure 호출 끝");
         }
     }
 
