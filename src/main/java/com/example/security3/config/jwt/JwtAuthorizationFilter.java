@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -30,7 +29,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     // 인증이나 권한이 필요할 때 해당 필터를 타게 된다.
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        super.doFilterInternal(request, response, chain);
         String jwtHeader = request.getHeader("Authorization");
 
         if (jwtHeader == null || !jwtHeader.startsWith("Bearer")) {
@@ -43,7 +41,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         if(username != null){
             System.out.println("=============================토큰 로그인 성공");
+            username = username.replace("\"", "").replace("'", "");
             User user = userRepository.findByUsername(username);
+            System.out.println("User : " + user.getUsername());
             PrincipalDetails principalDetails = new PrincipalDetails(user);
 
             // 로그인이 아닌 JWT 인증으로 Authentication 객체 만들기
